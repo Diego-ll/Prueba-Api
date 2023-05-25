@@ -7,15 +7,15 @@
     <b-dropdown-item
     v-for="(item,index) in groups"
     :key="index"
-    @click="mostrar(item.ItmsGrpCod)"
+    @click="mostrar(item.ItmsGrpCod,item.ItmsGrpDesc)"
     >{{item.ItmsGrpNam}}-{{item.ItmsGrpDesc}}</b-dropdown-item>
-    </b-dropdown>
+    </b-dropdown>{{name}}
     <b-dropdown
     text="Seleccionar Color"
     variant="secondary"
     >
     <b-dropdown-item
-    v-for="(item,index) in colors"
+    v-for="(item,index) in items"
     :key="index"
     @click="mostrar2(item.Color)"
     ><span class="dot" :style="{ backgroundColor: item.ColorHex, borderColor: borderC }"></span>{{item.ColorDesc}}</b-dropdown-item>
@@ -37,11 +37,13 @@
     </tr>
   </thead>
   <tbody>
-    <tr v-for="(item,index) in items" :key="index">
-      <th scope="row">{{item.ItmsGrpNam}}-{{item.ItmsGrpDesc}}</th>
+    <tr v-for="(item,index) in itemsF" :key="index">
+      <th scope="row" >{{item.ItmsGrpNam}}-{{item.ItmsGrpDesc}}</th>
       <td>{{item.ColorDesc}}</td>
       <td><span class="dot" :style="{ backgroundColor: item.ColorHex, borderColor: borderC }"></span></td>
       <td>{{item.Talla}}</td>
+      <td v-if="item.Stock>500">+500</td>
+      <td v-else>{{item.Stock}}</td>
     </tr>
   </tbody>
 </table>
@@ -55,9 +57,10 @@ export default {
     return{
       groups:[],
       items:[],
-      colors:[],
+      itemsF:[],
       borderC: 'black',
       code:null,
+      name:null
     }
   },
   methods:{
@@ -68,19 +71,15 @@ export default {
       .then(function (response) {
         my.groups=response.data.data;
       });
-
-      axios.get('http://sap.playerytees.com:8091/api/test/Colors')
-      .then(function (response) {
-        my.colors=response.data.data;
-      });
     },
-    mostrar(cod)
+    mostrar(cod,name)
     {
       let my=this;
       axios.get('http://sap.playerytees.com:8091/api/test/Items?ItmsGrpCod='+cod)
       .then(function (response) {
         my.items=response.data.data;
         my.code=cod;
+        my.name=name;
       });
     },
     mostrar2(color)
@@ -88,7 +87,7 @@ export default {
       let my=this;
       axios.get('http://sap.playerytees.com:8091/api/test/Items?ItmsGrpCod='+my.code+'&Color='+color)
       .then(function (response) {
-        my.items=response.data.data;
+        my.itemsF=response.data.data;
         
       });
     }
